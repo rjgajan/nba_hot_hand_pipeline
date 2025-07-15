@@ -1,0 +1,7 @@
+nba_api
+numpy
+pandas
+statsmodels
+matplotlib
+arch
+click
