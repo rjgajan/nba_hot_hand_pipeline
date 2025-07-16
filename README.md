@@ -32,8 +32,8 @@ You’ll end up with:
 ## Installations
 
 - Clone the repo and enter its folder:
-    - `git clone https://…/nba-hot-hand.git`
-    - `cd nba-hot-hand`
+    - `git clone https://github.com/rjgajan/nba_hot_hand_pipeline.git`
+    - `cd nba_hot_hand_pipeline`
 - Create virtual environment (optional but recommended):
     - `python3 -m venv .venv`
         - macOS: `source .venv/bin/activate`
