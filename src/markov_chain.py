@@ -3,11 +3,11 @@ from typing import Sequence
 
 def build_markov(ppm_series: Sequence[float]) -> pd.DataFrame:
     """
-    Build a 3 by 3 Markov chain from ppm_series via 20/60/20 discretization.
-      - 'hot'     = top 20%
-      - 'typical' = middle 60%
-      - 'cold'    = bottom 20%
-    Returns a DataFrame indexed and columned by ['hot','typical','cold'].
+    1.) Build a 3 by 3 Markov chain from ppm_series via 20/60/20 discretization.
+    2.) 'hot' = top 20%
+    3.) 'typical' = middle 60%
+    4.) 'cold' = bottom 20%
+    5.) Return as df.
     """
     arr = pd.Series(ppm_series).reset_index(drop=True)
 

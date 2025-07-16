@@ -4,20 +4,16 @@ import pandas as pd
 from src.get_ppm import points_per_min
 
 @click.command()
-@click.option(
-    '--player-name', '-n',
-    required=True,
-    help="Full name of the player (for CSV metadata)"
-)
+@click.option('--player-name', '-n', required=True, help="Full name of the player (for CSV metadata)")
 @click.argument('player_id',       type=int)
 @click.argument('output_csv',      type=click.Path())
 @click.argument('metadata_output', type=click.Path())
 @click.argument('seasons', nargs=-1, required=True)
 def cli(player_name, player_id, output_csv, metadata_output, seasons):
     """
-    Get points‑per‑minute for a player over one or more seasons.
-    Writes a CSV with a single column: PPM.
-    Also writes a metadata file with player_id, player_name, seasons.
+    1.) Get points-per-minute for a player over one or more seasons.
+    2.) Write to a csv.
+    3.) Writes a metadata file with player_id, player_name, seasons.
     """
     season_list = list(seasons)
     try:
@@ -29,7 +25,7 @@ def cli(player_name, player_id, output_csv, metadata_output, seasons):
     except Exception as e:
         click.echo(f"Unexpected error: {e}", err=True); sys.exit(3)
 
-    # Build a DataFrame with only the PPM column
+    # Build ppm df
     df = pd.DataFrame({'PPM': ppm_series})
 
     try:
@@ -37,7 +33,7 @@ def cli(player_name, player_id, output_csv, metadata_output, seasons):
     except Exception as e:
         click.echo(f"Error writing {output_csv}: {e}", err=True); sys.exit(4)
 
-    # Write metadata separately
+    # Write metadata
     try:
         with open(metadata_output, 'w') as f:
             f.write(f"player_id: {player_id}\n")

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import sys
 import click
 import pandas as pd
@@ -9,23 +8,21 @@ from statsmodels.tsa.arima.model import ARIMA
 from arch import arch_model
 
 @click.command()
-@click.argument('ppm_csv',      type=click.Path(exists=True))
-@click.argument('summary_txt',  type=click.Path())
-@click.option('--lags',         default=20, show_default=True,
-              help='Maximum number of lags for ACF/PACF plots')
-@click.option('--column', '-c', default='PPM', show_default=True,
-              help="Name of the column in ppm_csv to use")
+@click.argument('ppm_csv', type=click.Path(exists=True))
+@click.argument('summary_txt', type=click.Path())
+@click.option('--lags', default=20, show_default=True, help='Maximum number of lags for ACF/PACF plots')
+@click.option('--column', '-c', default='PPM', show_default=True, help="Name of the column in ppm_csv to use")
 def cli(ppm_csv, summary_txt, lags, column):
     """
-    1) Load PPM series (column `column`)
-    2) ADF test
-    3) Plot ACF/PACF → prompt d
-    4) Plot ACF/PACF on differenced → prompt p,q
-    5) Prompt GARCH P,Q
-    6) Fit ARIMA + GARCH
-    7) Write summary to summary_txt
+    1.) Load PPM series (column `column`)
+    2.) ADF test
+    3.) Plot ACF/PACF → prompt d
+    4.) Plot ACF/PACF on differenced → prompt p,q
+    5.) Prompt GARCH P,Q
+    6.) Fit ARIMA + GARCH
+    7.) Write summary to summary_txt
     """
-    # --- 1) Load ---
+    # Load PPM Series
     try:
         df = pd.read_csv(ppm_csv)
     except Exception as e:
@@ -38,14 +35,14 @@ def cli(ppm_csv, summary_txt, lags, column):
         click.echo("Series too short (<5 observations) for meaningful ACF/PACF.", err=True)
     click.echo(f"Loaded series of length {n}")
 
-    # --- 2) ADF test ---
+    # ADF Test
     try:
         adf_stat, adf_pval, *_ = adfuller(series)
         click.echo(f"ADF test: statistic={adf_stat:.3f}, p-value={adf_pval:.3f}")
     except Exception as e:
         click.echo(f"ADF test failed: {e}", err=True)
 
-    # Helper to plot if possible
+    # Plot Function
     def safe_plot(x, title):
         nonlocal lags
         clean = x.dropna()
@@ -60,29 +57,33 @@ def cli(ppm_csv, summary_txt, lags, column):
         plt.tight_layout(rect=[0,0,1,0.96])
         plt.show()
 
-    # --- 3) ACF/PACF on raw ---
-    safe_plot(series, "ACF/PACF of raw series")
+    # ACF / PACF on Historical
+    safe_plot(series, "ACF / PACF of Historical")
+
+    # ARIMA d
     d = click.prompt("Differencing order d", type=int, default=0)
 
-    # --- 4) ACF/PACF on differenced ---
+    # ACF / PACF on Differenced
     diffed = series.diff(d).dropna()
-    safe_plot(diffed, f"ACF/PACF of differenced (d={d})")
+    safe_plot(diffed, f"ACF / PACF of Differenced (d={d})")
+
+    # ARIMA p / q
     p = click.prompt("AR order p", type=int, default=1)
     q = click.prompt("MA order q", type=int, default=1)
     click.echo(f"Selected ARIMA({p},{d},{q})")
 
-    # --- 5) GARCH orders ---
+    # GARCH Orders
     P = click.prompt("GARCH volatility order p", type=int, default=1)
     Q = click.prompt("GARCH innovation order q", type=int, default=1)
     click.echo(f"Selected GARCH({P},{Q})")
 
-    # --- 6) Fit ARIMA + GARCH ---
+    # Fit ARIMA / GARCH
     click.echo("Fitting ARIMA ...")
     ar_mod = ARIMA(series, order=(p, d, q)).fit()
     click.echo("Fitting GARCH ...")
     garch_mod = arch_model(ar_mod.resid, mean='Zero', vol='Garch', p=P, q=Q).fit(disp='off')
 
-    # --- 7) Summarize ---
+    # Summarize
     with open(summary_txt, 'w') as f:
         f.write("=== ARIMA/GARCH Model Summary ===\n\n")
         f.write("[ARIMA Results]\n")

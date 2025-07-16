@@ -6,8 +6,8 @@ import re
 _SEASON_RE = re.compile(r'^\d{4}-\d{2}$')
 
 def points_per_min(p_id: str, season_list: list[str]) -> list[float]:
-    """Creates a list of points per minute for each regular season game.
-    Expects season_list entries like "2019-20", "2020-21", etc."""
+    """Create list of points per minute for each regular season game.
+    Expects season_list entries in XXXX-XX format."""
 
     if not isinstance(season_list, list):
         raise TypeError(f"season_list must be a list of strings, got {type(season_list).__name__}")

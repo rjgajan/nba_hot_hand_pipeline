@@ -8,20 +8,18 @@ from src.monte_carlo import run_mc
 @click.argument('ppm_csv',     type=click.Path(exists=True))
 @click.argument('nsim',        type=int)
 @click.argument('output_txt',  type=click.Path())
-@click.option('--column', '-c', default='PPM', show_default=True,
-              help="Name of the column in the input CSV")
-@click.option('--window', '-w', default=3, show_default=True,
-              help="Window size for a hot streak")
-@click.option('--threshold', '-t', default=None, type=float,
-              help="Explicit threshold (defaults to 80th percentile)")
+@click.option('--column', '-c', default='PPM', show_default=True, help="Name of the column in the input CSV")
+@click.option('--window', '-w', default=3, show_default=True, help="Window size for a hot streak")
+@click.option('--threshold', '-t', default=None, type=float, help="Explicit threshold (defaults to 80th percentile)")
+
 def cli(ppm_csv, nsim, output_txt, column, window, threshold):
     """
-    Hot‑Streak Monte Carlo analysis:
-      - historical count
-      - bootstrap mean/std
-      - classic mean/std
+    Hot-streak Monte Carlo analysis:
+    1.) historical count
+    2.) bootstrap mean/std
+    3.) classic mean/std
     """
-    # 1) Load
+    # Load
     try:
         df = pd.read_csv(ppm_csv)
     except Exception as e:
@@ -34,14 +32,14 @@ def cli(ppm_csv, nsim, output_txt, column, window, threshold):
 
     series = df[column]
 
-    # 2) Run
+    # Run
     try:
         stats = run_mc(series, nsim, threshold=threshold, window=window)
     except Exception as e:
         click.echo(f"Error during Monte Carlo: {e}", err=True)
         sys.exit(2)
 
-    # 3) Build report
+    # Build report
     header = (
         f"Hot‑Streak Analysis\n"
         f"Run date: {datetime.utcnow().date()}\n"
@@ -56,7 +54,7 @@ def cli(ppm_csv, nsim, output_txt, column, window, threshold):
 
     click.echo(report)
 
-    # 4) Save it
+    # Save
     try:
         with open(output_txt, 'w') as f:
             f.write(report)

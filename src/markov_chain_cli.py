@@ -4,13 +4,12 @@ import pandas as pd
 from src.markov_chain import build_markov
 
 @click.command()
-@click.argument('ppm_csv',    type=click.Path(exists=True))
+@click.argument('ppm_csv', type=click.Path(exists=True))
 @click.argument('output_csv', type=click.Path())
-@click.option('--column', '-c', default='PPM', show_default=True,
-              help="Name of the column in ppm_csv to use")
+@click.option('--column', '-c', default='PPM', show_default=True, help="Name of the column in ppm_csv to use")
 def cli(ppm_csv, output_csv, column):
     """
-    Build & save a Markov‑chain transition matrix from a PPM CSV.
+    Build and save a Markov-chain transition matrix from ppm csv.
     """
     try:
         df = pd.read_csv(ppm_csv)
